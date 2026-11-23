@@ -2,13 +2,17 @@
 
 ## DevOps
 
-DevOps is not a tool, it's a mindset. It's about breaking the silos between development and operations.
+Development and operations share responsibility for releasing changes and keeping the application running.
 
-Here's a few concepts of DevOps. For actual guide check the official documentation of each tool, YouTube and blogs.
+### Learning priorities
 
-A DevOps team should not be a team that does everything, but a team that helps other teams to do everything.
+- Trace a request through DNS, TLS, a proxy, application code, and a database.
+- Understand processes, permissions, ports, memory limits, and persistent storage well enough to diagnose a failed service.
+- Define reliability expectations, collect logs/metrics/traces, and investigate a slow or failing dependency.
+- Automate repeatable checks and deployment; demonstrate rollback and backup restoration.
+- Use AI to help write configuration and investigate failures. Review its changes and verify behavior in a disposable environment before applying them to shared systems.
 
-[YouTube - DevOps is Terrible](https://youtu.be/qVEEpUvl0Kw?si=L_midxVRkJUN2JjX)
+These feedback mechanisms also support an [agent development harness](./AI_ML.md#what-is-an-agent-harness). The same build, test, and diagnostic commands should be usable by both people and agents.
 
 ### Git
 
@@ -24,12 +28,14 @@ Git is a **distributed** version control system. It's the most used version cont
 - Tag
 - Amend (change the last commit)
 - Bisect (find the commit that broke the code)
-- Hooks (pre-commit, pre-push, post-commit, post-push)
+- [Hooks](https://git-scm.com/docs/githooks) (pre-commit, pre-push, post-commit; server-side examples include post-receive)
 
 - Pull request
 - Code review
 - Pair programming
 - Fork
+
+Use diffs to review generated changes and keep commits small enough to explain. Worktrees provide separate working directories for independent tasks; agree on integration ownership when several people or agents work in parallel.
 
 #### Services
 - **GitHub**
@@ -42,7 +48,7 @@ Git is a **distributed** version control system. It's the most used version cont
 CI/CD is the practice of automating the integration and deployment of code to production.
 
 - **CI**: Continuous Integration
-- **CD**: Continuous Deployment
+- **CD**: Continuous Delivery (keep releases ready to deploy) or Continuous Deployment (automatically deploy changes that pass the required checks)
 
 #### Pipelines 
 
@@ -52,14 +58,14 @@ They can be used to:
 - Build the code
 - Lint the code 
 - Test the code (TDD, BDD)
-  - Unit tests [YouTube - Why I Don't Unit Test](https://youtu.be/ZGKGb109-I4?si=FQ41FGUuwLVZyht_)
+  - Unit tests
   - Mutation Tests
   - Integration Tests
   - End-to-End tests
   - Smoke Tests
   - Performance Tests
   - Regression Tests
-  - Code Coverage ([YouTube - You should NOT focus on Code Coverage](https://youtu.be/WxoSoxVgyUw?si=nS73DZmbcw7SS5xx))
+  - Code coverage (a signal of what ran, not proof of correct behavior)
 - Check vulnerabilities
 - Check code quality
 - Check outdated dependencies
@@ -70,6 +76,8 @@ They can be used to:
 - Deploy the code
 - Notify the team
 - Anything else you can think of
+
+Choose tests around risks and requirements. Include authorization, invalid inputs, dependency failures, and recovery where relevant. Check that a known defect causes the corresponding check to fail, especially when AI generated both the implementation and tests. A skipped or still-running check is not a passing check.
 
 #### Tools
 
@@ -94,18 +102,19 @@ Packages:
   - Not all test can be done on every commit. Nightly builds are useful to run long tests.
 
 Chaos Engineering:
-- Invented by Netflix, it's the practice of introducing chaos in the system to test its resilience. 
+- Controlled experiments introduce failures to test the system's resilience against a stated hypothesis.
 - Introduces latency, errors, and other issues to see how the system reacts.
 - It can kill servers, introduce network issues, etc.
 - It can be done with tools like Gremlin, or manually.
+- Start in a disposable environment, limit the affected scope, and define stop conditions and recovery steps.
 
 ### Docker 
 
 Docker is a tool to create, deploy, and run applications by using containers.
-Containers are made by isolating a process in a namespace, and adding a filesystem on top of it.
-They have layers, and they can be shared and reused.
-They are faster than VMs, and they are more portable.
-They just share the kernel with the host.
+Linux containers run processes with isolated views of resources using namespaces, resource controls using cgroups, and a filesystem prepared from an image. Image layers can be shared and reused.
+Containers share the kernel of the environment running them; Docker Desktop commonly runs Linux containers inside a Linux VM on macOS and Windows. They often start with less overhead than a full VM, while compatibility and isolation depend on the platform and configuration. See [Docker's container introduction](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/).
+
+A container is not sufficient protection for arbitrary agent commands by itself. Review mounted paths, credentials, network access, privileges, and resource limits when using one as an execution environment.
 
 #### Concepts
 
@@ -114,7 +123,7 @@ They just share the kernel with the host.
 - **Volume**: A way to persist data
 - **Network**: A way to connect containers
 - **Dockerfile**: A file with instructions to create an image
-- **Docker Composer**: A way to define and run multi-container Docker applications
+- **Docker Compose**: A way to define and run multi-container Docker applications
 - **Registry**: A place to store and share images (Docker Hub, Azure Container Registry, GitHub Container Registry)
 - **ENV**: A way to pass environment variables to the container
 
@@ -123,8 +132,10 @@ They just share the kernel with the host.
 Infrastructure as Code is the practice of managing infrastructure using code.
 Instead of clicking on buttons in a GUI or running commands in a terminal, you write code that defines your infrastructure.
 
-On Azure we can use *ARM* templates or *Bicep*, on *AWS* we can use *CloudFormation*, on *Google Cloud* we can use *Deployment Manager*.
+On Azure we can use *ARM* templates or *Bicep*, on *AWS* we can use *CloudFormation*, and on *Google Cloud* we can use Terraform through [Infrastructure Manager](https://cloud.google.com/infrastructure-manager/docs/overview).
 More generic tools are *Terraform* and *Pulumi*.
+
+Google Cloud Deployment Manager has [reached end of support](https://docs.cloud.google.com/deployment-manager/docs); use current documentation when choosing a tool. Review infrastructure plans, access permissions, state storage, and recovery steps before applying changes, including AI-generated configuration.
 
 *Bicep* example:
 
@@ -147,7 +158,9 @@ resource name_resource 'Microsoft.Web/staticSites@2021-01-15' = {
     tier: sku
     name: skucode
   }
-}resource name_appsettings 'Microsoft.Web/staticSites/config@2021-01-15' = {
+}
+
+resource name_appsettings 'Microsoft.Web/staticSites/config@2021-01-15' = {
   parent: name_resource
   name: 'appsettings'
   properties: appSettings
@@ -155,6 +168,8 @@ resource name_resource 'Microsoft.Web/staticSites@2021-01-15' = {
 ```
 
 With the code above we can create a static website on Azure. The result is reproducible and can be versioned. A second parameter file can be used to change the values.
+
+This excerpt requires definitions for the referenced variables and parameters. Verify API versions and properties against current provider documentation before deploying.
 
 ### Monitoring and Alerting
 
@@ -179,7 +194,7 @@ Create queries on logs to:
 
 You can use tools like *Prometheus*, *Grafana*, *Azure Monitor*, *AWS CloudWatch* to create dashboards and alerts.
 
-### Open Telemetry
+### OpenTelemetry
 
 OpenTelemetry is a set of APIs, SDKs, and tools for collecting, processing, and exporting telemetry data (metrics, logs, and traces) from your applications. 
 It provides a vendor-neutral standard for observability.
@@ -225,7 +240,7 @@ If a service like a WebApp needs to access a database, it can use its identity t
 
 #### Concepts
 
-- **Managed Identity**: A way to identify a user or a service. [List of available services](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/managed-identities-status)
+- **Managed Identity**: An Azure-managed identity for an application or workload to authenticate without managing its credentials. [List of available services](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/managed-identities-status)
 - **Role-based access control (RBAC)**: A way to manage access to resources based on roles. [What is RBAC](https://learn.microsoft.com/en-us/azure/role-based-access-control/overview)
 - **Azure Policy**: A way to enforce rules and standards on resources. [What is Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/overview)
 - [Using Managed Service Identity (MSI) to authenticate on Azure SQL DB](https://techcommunity.microsoft.com/t5/azure-database-support-blog/using-managed-service-identity-msi-to-authenticate-on-azure-sql/ba-p/1288248)
@@ -238,7 +253,7 @@ It works well with Microservices, but it's not the only way to do it.
 
 Everything is defined in a YAML file, and it's declarative. Most concepts are similar to [Docker Compose](https://docs.docker.com/compose/), but they are more complex.
 
-> Most companies don't need Kubernetes, but it's a good tool to know.
+Choose Kubernetes when its scheduling, scaling, and operational capabilities justify the cost of running it. Compare with a managed application platform or a simpler container deployment for your workload.
 
 ### Basic Concepts
 
@@ -248,14 +263,16 @@ Everything is defined in a YAML file, and it's declarative. Most concepts are si
 - **Service**: A way to abstract a set of pods, load balance them, and more
 - **Deployment**: A way to deploy a pod, and manage its replicas
 - **Ingress**: A way to expose a service to the outside world. It can be used to route traffic, add SSL, and more
-- **Namespace**: A way to isolate resources, used to separate environments or tenants
+- **Namespace**: A scope for naming and organizing resources. Tenant isolation also requires authorization, network policy, and other controls; see [Kubernetes multi-tenancy](https://kubernetes.io/docs/concepts/security/multi-tenancy/).
 - **ConfigMap**: A way to store configuration
-- **Secret**: A way to store sensitive information
+- **Secret**: An object for sensitive configuration; access controls and encryption at rest must be configured appropriately.
 - **Volume**: A way to persist data
 
 ### Example
 
 [Documentation](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+
+The image reference below is a placeholder. Replace it with a supported image pinned to a verified digest before applying this manifest.
 
 ```yaml
 apiVersion: apps/v1
@@ -276,7 +293,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.14.2
+        image: YOUR_REGISTRY/nginx@sha256:YOUR_VERIFIED_DIGEST
         ports:
         - containerPort: 80
 ```
