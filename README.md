@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a small document to help you get started with modern DevOps and AI practices and generic advices.
+Resources for ITS students learning to build, operate, and improve software with AI. Start with practical projects, then use debugging and experiments to understand the systems underneath them.
 
 ## Resources
 
@@ -12,9 +12,9 @@ This is a small document to help you get started with modern DevOps and AI pract
 ## Projects
 
 ### 2025
-- [JParser](./projects/2025/jparser): A Node.js library for parsing and manipulating JSON data with advanced features.
+- [JParser](./projects/2025/jparser) uses TypeScript and Deno to explore how a lexer, parser, and formatter handle JSON.
 - [PokeBattle](./projects/2025/pokebattle): API and UI in docker with example GitHub actions workflows and ML.NET examples.
-- [WalkGame](./projects/2025/walk-game): A Pytorch-based 2D game where an agent learns to navigate and environment using Supervised Learning, Reinforcement Learning, and NeuroEvolution.
+- [WalkGame](./projects/2025/walk-game) is a PyTorch game for exploring how an agent learns to navigate an environment.
 
 ### 2024
 
@@ -26,97 +26,80 @@ This is a small document to help you get started with modern DevOps and AI pract
 
 ## How to be a good engineer
 
-- **Be curious**: Always be curious about how things work. Use *YouTube* (examples later), *Reddit*, *X*; follow people and projects.
-- **Challenge yourself**: Build complex projects and solve complex problems.
-- **Simplify**: Once you know how to build complex things, strive to simplify them.
-    - Don't use the latest technology just because it's new. Use it because it's better.
-    - You don't need NoSQL, Microservices, or Kubernetes if you don't have a problem that needs them.
-    - [YouTube - Microservices](https://youtu.be/y8OnoxKotPQ?si=HBQx4jfZYX32jQNg)
-- **Work iteratively**: Don't try to build everything at once. Build small parts and iterate on them.
-- **Security**: Always think about security. Data leaks and downtime are expensive, very expensive.
-- **Documentation**: Document your code, your projects, your decisions. It will help you and your team.
-    - Code sometimes can self-document, but it's not always the case.
-    - [YouTube - Don't write comments](https://youtu.be/Bf7vDBBOBUA?si=IV2hkPYpUwFZ3YOk)
-- **Tooling**:
-    - There's no perfect language, framework, or tool. Use the right tool for the job and skill-set.
+Use AI from the beginning to explore, implement, and iterate. You remain responsible for understanding the problem, choosing tradeoffs, and checking the result. A project can contain entirely AI-generated code; the percentage generated says little about either its quality or what you learned.
+
+- **Define the problem**: Identify the user, expected behavior, constraints, and examples of success and failure before requesting an implementation.
+- **Understand the system**: Trace requests and data through the application. Read the code involved in a change, especially authorization, persistence, concurrency, and error handling. Use AI explanations as a starting hypothesis and check them against execution and source code.
+- **Make architecture decisions**: Define component boundaries, data ownership, interfaces, and failure behavior. Compare a simple design with alternatives using expected load, cost, reliability, and team needs. Add services or orchestration when you can explain the benefit.
+- **Delegate clearly**: Give humans and agents bounded tasks, relevant context, interface contracts, and acceptance criteria. Integrate and verify their work. Parallelize independent tasks when the coordination cost is worthwhile.
+- **Create feedback loops**: Make it easy to build, run, test, inspect logs, and reproduce failures. An agent needs reliable feedback to improve its implementation; see [AI development and harnesses](./AI_ML.md#ai-assisted-software-development).
+- **Work iteratively**: Deliver a small working slice, observe it, and adjust. Check unfamiliar assumptions with documentation, experiments, and measurements.
+- **Document decisions**: Record why the system works this way, its limitations, and how to operate it. Use comments for intent and surprising constraints.
+- **Own the outcome**: Review security, privacy, deployment, and recovery alongside functionality. Measure useful behavior and maintainability rather than lines generated or typing speed.
+
+### Foundations to learn through experiments
+
+Higher-level decisions need a working understanding of what runs underneath them. Start with a project problem, predict what will happen, then use tools to check the prediction.
+
+| Area | What to understand | Small experiment |
+| --- | --- | --- |
+| Computer architecture | CPU execution, caches, RAM, storage, and the cost of moving data | Compare sequential and random access over a large array; measure time and explain the difference. |
+| Operating systems | Processes, threads, virtual memory, files, permissions, and resource limits | Run a service with a memory limit, observe its failure, and inspect the logs. |
+| Networks | DNS, TCP, TLS, HTTP, latency, timeouts, and connection reuse | Trace a request and simulate a slow dependency; distinguish a timeout from an application error. |
+| Data systems | Indexes, transactions, isolation, consistency, and recovery | Compare query plans before and after an index; test concurrent updates and restore a backup. |
+| System architecture | Boundaries, queues, caching, retries, idempotency, and backpressure | Deliver the same event twice and prove that an operation is applied only once. |
 
 ### Example projects
 
-- **Write a language**: It's not magic, someone wrote it. Same goes for IDEs, with custom highlights and autocompletion. This also include frameworks like Angular or Svelte.
-    - Write the compiler
-    - Write the VS Code plugin for syntax highlighting
-    - Write the VS Code plugin for autocompletion (*LSP* - Language Server Protocol)
-- **Write a database**: Again, you can do a simple implementation of a DB like Cosmos
-    - Think about the data structure
-    - Write the storage engine
-    - Write the query engine
-    - Add indexing
-- **Write a web server**: You can write a simple web server like *Express*, or *ASP.NET*. They are "just" libraries on top of *Node* and *.NET*. You can also write a simple version of Kestrel.
-    - Write the HTTP parser
-    - Write the routing engine
-    - Write the middleware engine
-- **Write an ORM**: You can write a simple ORM like *Entity Framework* or *TypeORM*. They are just libraries to write on SQL.
-    - Write the query builder
-    - Write the change tracker
-    - Write the migration engine
-- **Write a CI/CD pipeline**: You can write a simple version of GitHub Actions, or *Azure DevOps*. They are just scripts that run on a server.
-- **Write a container engine**: You can write a simple version of Docker. It's just a process running in a namespace.
-- **Write version control like Git**: It's just a graph of commits. You can write a simple version of it.
+Choose a project with a clear behavior to demonstrate. AI can help implement it; your job is to explain decisions, investigate failures, and provide evidence.
+
+| Project | Practice | Evidence to show |
+| --- | --- | --- |
+| Operate a small API and database | Architecture, data modeling, deployment, and observability | Trace a request, enforce access control, diagnose a slow query, and demonstrate backup restoration. |
+| Build a background job system | Queues, timeouts, retries, and idempotency | Restart a worker during a job and verify the intended result after redelivery. |
+| Improve an unfamiliar application | Code reading, debugging, and performance | Reproduce a defect, trace its cause, fix it, and show a regression check or a measured improvement. |
+| Create an agent development harness | Task specification, repeatable environments, and verification | Give an agent a bounded issue, record its attempts, and demonstrate that the checks reject a deliberately broken solution. |
+| Compare two system designs | Tradeoffs and measurement | Test the same workload against a simple design and one alternative; explain latency, cost, and failure behavior. |
+
+For every project, explain one design decision, walk through a relevant code path, reproduce an injected failure, and make a small change while explaining its effect. Keep a short record of what was delegated and how you verified it. A successful demo alone does not establish understanding.
+
+### Optional internals exercises
+
+Writing a compiler, storage engine, HTTP server, or version control system can still teach useful concepts when the scope matches a learning goal. Prefer a small exercise you can inspect and change over a large generated implementation you cannot explain.
+
+- **Language internals.** Start in [JParser](./projects/2025/jparser/main.ts). Predict the tokens and parsed value for `[1,[2]]`, then step through the parser. Try `[1 2]` and compare the result with `JSON.parse`. Find the branch responsible for the difference and add a check that catches it. A full compiler is an optional next project if language implementation interests you.
+- **Storage**: Build a tiny key-value log, interrupt a write, and investigate recovery. Compare lookup behavior with and without an index.
+- **HTTP**: Inspect raw requests and implement a small parser in a local lab. Explain how malformed input is handled before comparing with a production server.
+- **Version control**: Store content by hash and represent parent commits. Explain how to detect changed content and where merge conflicts come from.
+
+AI may generate the starting implementation. Read the relevant code, predict behavior before running it, break an assumption, and verify a change. If these steps are too difficult, reduce the scope or implement a small part manually to close the gap.
 
 ### Tools
 
-Be a good engineer doesn't mean to be fast. Your brain is more important than your hands.
+Choose an environment that helps you inspect, debug, and deliver work. Windows, macOS, and Linux can all support effective development; learn enough Linux to understand the environments where your services run.
 
-HOWEVER, if you are also fast, it's better. If you are fast you won't experience those micro context switches that slow you down, and you can just type as the speed of thought.
+- Learn Git diffs, navigation, a debugger, a profiler, and how to inspect logs and network requests.
+- Use the terminal for repeatable commands and scripts; use graphical tools when they make investigation easier.
+- Learn shortcuts and automate recurring work when it saves time. Vim motions, Neovim, tmux, and tiling window managers are optional preferences.
+- Keep setup, build, test, and run instructions reproducible for both teammates and agents.
 
-Here are some tools that can help you be faster:
-- **Keyboard**: Minimize the use of the mouse, they keyboard is faster, and you can do more with it.
-    - **Mechanical keyboards**: They are more comfortable and better feedback [Great price/quality](https://www.keychron.com/)
-    - **Touch typing**: It's faster than looking at the keyboard
-- **Linux**: It's faster than Windows if you know what you need to do (or MacOS at least)
-    - You can tailor it to your needs
-    - Use tiling window managers like i3, Sway, Hyprland or PopOS
-    - Distributions examples:
-        - Debian, Ubuntu, PopOS: stable releases (release every 6 months)
-        - ArchLinux: rolling release (release every day)
-        - NixOS: the whole OS is defined in a single file with predictable results
-    - [Udemy - Arch Linux per Comuni Mortali (Udemy)](https://www.udemy.com/course/arch-linux-per-comuni-mortali/?couponCode=CBD4F77FEB3117AC599E)
-- **The terminal**: It's faster than any GUI if you know what you need to do
-    - *oh-my-posh*: themes, *Git* info and more for *Bash* and *Powershell*
-    - *zsh*: A better shell, with autocompletion and more (Oh my ZSH)
-- **Shortcuts**: Learn the shortcuts of your IDE, OS and tools they are faster than the mouse
-- **Vim** motions (installable on any IDE)
-    - You will be able to edit text much faster in any IDE
-    - It is frustrating at the beginning, but it's worth it. Start with just a few motions
-    - [YouTube - Vim motions playlist](https://www.youtube.com/watch?v=X6AR2RMB5tE&list=PLm323Lc7iSW_wuxqmKx_xxNtJC_hJbQ7R)
-- **NeoVim** (When you mastered Vim motions)
-    - From IDE to PDE (Personal Development Environment), you can make it work exactly as you want.
-    - [YouTube - NeoVim Kickstart](https://www.youtube.com/watch?v=m8C0Cq9Uv9o)
-  > This is not perfect for every situation, it can replate easily VS Code, but not IntelliJ or Visual Studio for specific workflows.
-- **Tmux** (Multiple terminal "windows" in one terminal)
-    - You can have multiple terminals in one terminal, create sessions, windows, panels, and more.
-    - [YouTube - Tmux explained](https://youtu.be/niuOc02Rvrc?si=MOBA-YV9tC8yhN8z)
+### Learning resources and YouTube
 
-### YouTube channels
+Start with a question or experiment. Prefer official documentation and structured courses for technical reference, then use creators for demonstrations and additional perspectives.
 
-- [Salvatore Sanfilippo](https://www.youtube.com/@antirez): AI, C, general discussion
-- [MorroLinux](https://www.youtube.com/@morrolinux): Linux (ITA)
-- [Matthew Coder](https://www.youtube.com/@MatthewCoder): Game DEV (ITA)
-- [typecraft](https://www.youtube.com/@typecraft_dev): Generic development practices
-- [DevOps Toolbox](https://www.youtube.com/@devopstoolbox): Generic DevOps practices, Linux, development
-- [Primeagen](https://www.youtube.com/@ThePrimeagen): Generic programming tips, Vim, Tmux, and more
-- YouTube will suggest you more channels based on your interests
+| Resource | Use it for |
+| --- | --- |
+| [Nand to Tetris](https://www.nand2tetris.org/course) | Computer architecture and the software stack through scoped construction projects. Select modules that fit your learning goal. |
+| [MIT Missing Semester](https://missing.csail.mit.edu/2026/) | Shell tools, Git, debugging, profiling, shipping software, and agentic coding. |
+| [Hussein Nasser](https://www.husseinnasser.com/p/software-engineering.html) | Backend engineering, networking, and database behavior. |
+| [Salvatore Sanfilippo](https://www.youtube.com/@antirez) | Programming and engineering discussions; choose material relevant to your current question. |
+| [MorroLinux](https://www.youtube.com/@morrolinux) | Linux demonstrations in Italian. |
+| [ThePrimeagen](https://www.youtube.com/@ThePrimeagen) | Programming and editor-workflow demonstrations, including Vim. Treat broader tooling and career opinions as perspectives to evaluate. |
 
-### Generic advices
+No creator is a curriculum or a general authority. Distinguish demonstrations from commentary, check the publication date and underlying sources, and reproduce technical claims. Watching more videos is useful when it helps you answer a question or run a better experiment.
 
-- **Take care of yourself**
-    - Exercise and eat well, it's the only body you have.
-    - **Good chair**: You will spend a lot of time on it.
-    - **Standing desk**: It's better for your back.
-    - **Alice/Split keyboard**: It's better for your wrists
-- **Fight Scrum**: Agile is great, Scrum is not.
-    - Don't spend all your time in meetings.
-    - [YouTube - The Agile Paradoxon](https://youtu.be/Bez7wmAsxjE?si=pJVrgVTJ8qCUoPKs)
-    - [YouTube - The Expert](https://youtu.be/BKorP55Aqvg?si=ryEfSgHU253hyVkK)
-- [YouTube - La AI penalizza le assunzioni dei programmatori junior a favore dei senior?](https://youtu.be/dBt5u19GpKc?si=SdcMP17-O6AvejZZ)
-- [YouTube - Quello da non fare mai quando si programma con l'AI](https://youtu.be/cc86dChauDE?si=tqc7paXyFZh0wi-A)
+### Working sustainably with others
+
+- Use a comfortable workspace, take breaks, and adjust tools to your needs.
+- Ask for feedback early and explain uncertainty. A clear handoff should let another person continue the work.
+- Evaluate team processes by whether they improve feedback, coordination, and delivery. Adjust meetings and ceremonies when they stop serving those goals.

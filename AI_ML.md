@@ -4,6 +4,8 @@
 
 AI/ML is not a single tool, it’s a **workflow**: data → model → evaluation → iteration → deployment → monitoring.
 
+For AI-assisted engineering, start with [AI-assisted software development](#ai-assisted-software-development). The later sections introduce the models and data techniques used to build AI features.
+
 ## Resources
 
 Models, datasets and more can be found at:
@@ -51,6 +53,68 @@ Prompt engineering (practical):
 - Prefer **tool use** (search, DB query, code) over "just guess".
 - Defend against **prompt injection** when you include untrusted content.
 
+Delimiters and instructions help organize context, but do not enforce a security boundary. Enforce tool permissions and validate inputs in the application.
+
+## AI-assisted software development
+
+Use AI to implement, explain, explore, and debug from the start. Learn the foundations by tracing real behavior and running experiments. You should be able to explain important decisions and investigate failures even when the agent writes all the code.
+
+### From request to verified change
+
+1. **Specify the outcome**: Describe the user need, examples, constraints, and acceptance criteria. Name the behavior that must remain true, such as preventing access to another user's records.
+2. **Provide useful context**: Include relevant code paths, interface contracts, runtime versions, build commands, and known limitations. Keep repository instructions short and current; retrieve additional context when needed.
+3. **Bound the task**: Assign one coherent change with explicit scope, allowed tools, and a definition of done. Review the plan when the task involves important design choices.
+4. **Run a feedback loop**: Let the agent build, test, and inspect results in a repeatable environment. Check actual commands and outputs when evaluating its completion report.
+5. **Verify independently**: Derive checks from the requirements, including failure cases. Review relevant diffs and code paths, exercise the result, and inspect operational behavior.
+6. **Integrate and learn**: Record the decision, evidence, and remaining limitations. Reproduce a failure and explain the fix before treating the task as a learning success.
+
+Example delegation brief:
+
+```text
+Goal: Repeated delivery of the same job must not charge a customer twice.
+Context: Read the worker, payment adapter, persistence code, and current tests.
+Scope: Change the worker and persistence behavior; preserve the public API.
+Constraints: Use the local fake payment service; no production credentials.
+Acceptance: Test duplicate delivery, concurrent workers, and a crash after the
+payment succeeds but before the job is acknowledged. State any assumptions
+about the payment provider's idempotency support.
+Evidence: Show the relevant diff, executed checks, and a reproducible crash test.
+```
+
+This brief requires a system decision about idempotency and recovery. Asking an agent to "add retries" without defining those semantics can leave the actual problem unresolved.
+
+### What is an agent harness?
+
+A coding **agent** uses a model and tools to work toward a goal. Its **harness** is the surrounding software and configuration that manages context, executes tools, feeds back results, enforces limits, and records progress. A prompt is one part of this environment.
+
+Start with the coding tool's existing harness and a few repeatable repository commands. Add custom orchestration when a measured limitation justifies it.
+
+| Harness component | Practical starting point |
+| --- | --- |
+| Environment | Documented setup, pinned dependencies, disposable test data, and build/test/run commands. |
+| Context | A task brief, repository instructions, architecture notes, and relevant source files. |
+| Permissions | Limited filesystem and network access, scoped credentials, and explicit control over publishing or production changes. |
+| Feedback | Compiler/type checks, focused tests, application logs, and ways to exercise the running system. |
+| State and recovery | Small commits or checkpoints, progress notes, captured failures, and a way to resume or roll back. |
+| Limits | Time and cost budgets, bounded retries, and a stopping condition when progress stalls. |
+| Evaluation | Requirement-derived cases, independent review, and recorded results across repeated tasks. |
+
+For a first harness exercise, run one agent on a small repository issue. Capture its attempts, verify the change, and deliberately introduce a fault to check whether the harness detects it. Compare time to a verified result, correctness, cost, and human intervention when changing the setup.
+
+### Delegation and verification
+
+Parallel agents can help with independent tasks whose interfaces are clear. Use isolated branches or worktrees and define who integrates the results. Shared assumptions, conflicting edits, and review overhead can erase the benefit of parallelism.
+
+An agent's tests may repeat its implementation mistakes. Check expected outcomes against the specification, add cases the implementation did not suggest, and keep some evaluation cases outside the agent's editable work. Another model's approval is supporting feedback; deterministic checks and human judgment still matter.
+
+Read and step through code involved in important behavior, especially security, data writes, concurrency, and failure recovery. Passing tests provide evidence about the cases exercised; they do not establish that all requirements are covered.
+
+Further reading:
+
+- [MIT Missing Semester: Agentic Coding](https://missing.csail.mit.edu/2026/agentic-coding/) introduces coding agents, context, tools, and exercises.
+- [Anthropic: Effective harnesses for long-running agents](https://www.anthropic.com/research/effective-harnesses-for-long-running-agents) describes environment setup, incremental work, and progress across sessions.
+- [Anthropic: Harness design for long-running application development](https://www.anthropic.com/research/harness-design-long-running-apps) explores task decomposition and evaluation. Treat its vendor experiments as design examples and measure the effect in your own workflow.
+
 ## RAG (Retrieval-Augmented Generation)
 
 RAG is generation of content where a context is injected from an external source (not only the model training).
@@ -64,7 +128,7 @@ Typical pipeline:
 
 ## MCP (Model Context Protocol)
 
-**MCP** is a standard way for AI apps to connect to **tools** and **data sources** via a client/server protocol.
+**MCP** is a standard way for AI apps to connect to **tools** and **data sources** via a client/server protocol. See the [official architecture overview](https://modelcontextprotocol.io/docs/learn/architecture).
 
 Mental model:
 - **MCP Host**: the app running the LLM (chat app, IDE, agent runner)
@@ -83,7 +147,7 @@ Security basics:
 - Treat retrieved text as untrusted input (prompt injection defenses)
 
 Performance:
-- Can be bad as MCP adds layers over tool callings
+- Measure transport, server execution, context size, and model round trips. The overhead depends on the integration; MCP itself does not determine the whole workflow's performance.
 
 ## Vectors, embeddings, and vector databases
 
@@ -144,7 +208,7 @@ Important internal concept:
 Common patterns:
 - **Hybrid search**: combine keyword (BM25) + vector similarity (best of both worlds).
 - **Reranking**: first retrieve candidates, then rerank with a stronger model (cross-encoder / LLM).
-- **Namespace / partitioning**: separate data per customer/tenant for safety and performance.
+- **Namespace / partitioning**: organize data per customer/tenant for performance and access management. Enforce authorization before retrieval; a partition name alone is not an access-control boundary.
 
 ## Semantic Kernel (SK)
 
