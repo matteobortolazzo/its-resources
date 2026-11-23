@@ -12,14 +12,11 @@ Models, datasets and more can be found at:
 - [Hugging Face](https://huggingface.co/)
 - [Kaggle Datasets](https://www.kaggle.com/datasets)
 
-Interesting YouTube videos:
-- [All ML algorithms in 17 mins](https://youtu.be/E0Hmnixke2g?si=WVieIuKfKb68KaAu)
-- [But what is a neural network?](https://youtu.be/aircAruvnKk?si=rXaZCLX75Dci7F9_)
-- [PyTorch in 1 Hour](https://youtu.be/r1bquDz5GGA?si=EhhiN1hCs566DD7u)
+Video lessons
 
-
-- [Training AI to Play Pokemon with Reinforcement Learning](https://youtu.be/DcYLT37ImBY?si=0ZEOnSCn6-1pcMzP)
-- [I Trapped this AI Centipede in a Simulation for 1000 Years](https://youtu.be/oFqwcngsts8?si=250WYPcEyYHSJMn2)
+- [But what is a neural network?](https://youtu.be/aircAruvnKk)
+- [PyTorch in 1 Hour](https://youtu.be/r1bquDz5GGA)
+- [Training AI to Play Pokémon with Reinforcement Learning](https://youtu.be/DcYLT37ImBY)
 
 ## What is a model
 
@@ -57,18 +54,9 @@ Delimiters and instructions help organize context, but do not enforce a security
 
 ## AI-assisted software development
 
-Use AI to implement, explain, explore, and debug from the start. Learn the foundations by tracing real behavior and running experiments. You should be able to explain important decisions and investigate failures even when the agent writes all the code.
+### Delegating a change
 
-### From request to verified change
-
-1. **Specify the outcome**: Describe the user need, examples, constraints, and acceptance criteria. Name the behavior that must remain true, such as preventing access to another user's records.
-2. **Provide useful context**: Include relevant code paths, interface contracts, runtime versions, build commands, and known limitations. Keep repository instructions short and current; retrieve additional context when needed.
-3. **Bound the task**: Assign one coherent change with explicit scope, allowed tools, and a definition of done. Review the plan when the task involves important design choices.
-4. **Run a feedback loop**: Let the agent build, test, and inspect results in a repeatable environment. Check actual commands and outputs when evaluating its completion report.
-5. **Verify independently**: Derive checks from the requirements, including failure cases. Review relevant diffs and code paths, exercise the result, and inspect operational behavior.
-6. **Integrate and learn**: Record the decision, evidence, and remaining limitations. Reproduce a failure and explain the fix before treating the task as a learning success.
-
-Example delegation brief:
+Suppose a worker charges a customer and then crashes before it can mark the job complete. When the queue redelivers the job, a retry could charge the customer again. Give the agent the failure sequence, the code it can change, and a way to check the outcome.
 
 ```text
 Goal: Repeated delivery of the same job must not charge a customer twice.
@@ -81,7 +69,7 @@ about the payment provider's idempotency support.
 Evidence: Show the relevant diff, executed checks, and a reproducible crash test.
 ```
 
-This brief requires a system decision about idempotency and recovery. Asking an agent to "add retries" without defining those semantics can leave the actual problem unresolved.
+After the simulated crash, count payments at the fake provider as well as completed jobs in the database. Checking the jobs table alone can miss a duplicate charge.
 
 ### What is an agent harness?
 
@@ -401,4 +389,4 @@ Typical loop:
 Where it’s used:
 - Research/prototyping
 - Training custom neural networks
-- Powering many LLM and vision stacks 
+- Powering many LLM and vision stacks

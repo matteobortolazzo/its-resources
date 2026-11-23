@@ -2,15 +2,9 @@
 
 ## DevOps
 
-DevOps is not a tool, it's a mindset. It's about breaking the silos between development and operations.
-
-Here are a few concepts of DevOps. Use official documentation for implementation details and check examples against the versions you run.
-
-A DevOps team should not be a team that does everything, but a team that helps other teams to do everything.
+Development and operations share responsibility for releasing changes and keeping the application running.
 
 ### Learning priorities
-
-Start with a small application and learn to build, deploy, observe, and recover it. Introduce infrastructure complexity when you can explain the requirement it satisfies.
 
 - Trace a request through DNS, TLS, a proxy, application code, and a database.
 - Understand processes, permissions, ports, memory limits, and persistent storage well enough to diagnose a failed service.
